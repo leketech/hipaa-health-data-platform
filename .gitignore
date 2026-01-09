@@ -1,0 +1,67 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.crash
+.tfvars
+*.backup
+*.retry
+
+# Terraform variables that might contain secrets
+**/terraform.tfvars
+**/secrets.auto.tfvars
+**/*.auto.tfvars
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+**/logs/
+
+# Credentials
+**/credentials
+**/config.json
+**/aws_credentials
+
+# Environment files
+.env
+.envrc
+**/.env.local
+**/.env.production
+
+# Keys and certificates
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.jks
+
+# Shell history
+.bash_history
+.zsh_history
+.pwd_history
+
+# AWS CLI
+.aws/
+.aws-sam/
+
+# Node modules (if any)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local configuration overrides
+**/local.auto.tfvars
+**/secret*.tf

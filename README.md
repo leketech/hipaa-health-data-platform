@@ -1,2 +1,220 @@
-# hipaa-health-data-platform
+# 🏥 HIPAA-Ready Health Data Platform on AWS
+
 A production-grade, compliance-first healthcare data platform designed with security, observability, and operational maturity as non-negotiable requirements.
+
+## 📌 Project Overview
+
+This project demonstrates how to design, build, and operate a HIPAA-ready health data platform on AWS using modern DevOps and cloud-native best practices.
+
+The platform securely handles Protected Health Information (PHI) while enforcing:
+
+- Strong identity and access controls
+- Encryption at rest and in transit
+- Immutable audit logging
+- Continuous observability
+- Disaster recovery and backup validation
+
+This repository is intentionally structured to reflect real enterprise environments in regulated industries such as healthcare and fintech.
+
+## 🎯 What This Project Proves
+
+✅ Senior-level DevOps & Platform Engineering mindset
+✅ Healthcare compliance awareness (HIPAA safeguards)
+✅ Security-by-design architecture
+✅ Production-ready CI/CD pipelines
+✅ Operational maturity (monitoring, DR, auditability)
+
+## 🧱 High-Level Architecture
+
+### Request Flow
+
+Users → Cognito → API Gateway + WAF → ALB → EKS → RDS / S3
+
+
+### Control Planes
+
+- 🔐 Security & Compliance Plane
+- 📊 Observability Plane
+- 💾 Backup & Disaster Recovery Plane
+
+Full architecture diagrams are available in the /architecture directory.
+
+## 🛠 Technology Stack
+
+### Cloud & Infrastructure
+
+- Amazon EKS (private cluster)
+- Amazon RDS (PostgreSQL) – Multi-AZ, KMS-encrypted
+- Amazon S3 – PHI storage, SSE-KMS, Object Lock
+- Amazon Cognito – MFA, OAuth2, RBAC
+- AWS KMS – Customer-managed keys
+- AWS Backup – Cross-region DR
+
+### Security & Compliance
+
+- AWS CloudTrail (org-wide)
+- EKS Audit Logs
+- VPC Flow Logs
+- AWS GuardDuty & Security Hub
+- IAM Roles for Service Accounts (IRSA)
+- OPA (policy-as-code)
+
+### Observability
+
+- Amazon CloudWatch (metrics & logs)
+- Amazon Managed Prometheus
+- Amazon Managed Grafana
+- AWS X-Ray (distributed tracing)
+- Alerts via SNS / PagerDuty
+
+### DevOps & IaC
+
+- Terraform (modular, multi-environment)
+- GitHub Actions (secure CI/CD)
+- Trivy (IaC + container scanning)
+- GitOps deployment model
+
+## 🔐 Security & HIPAA Considerations
+
+This platform is designed to align with HIPAA Administrative, Physical, and Technical Safeguards.
+
+### Key Controls Implemented
+
+**Least-Privilege Access**
+
+- IAM + IRSA per service
+- No shared credentials
+
+**Encryption Everywhere**
+
+- KMS-encrypted RDS, S3, EBS, secrets
+- TLS 1.2+ enforced
+
+**Auditability**
+
+- Immutable logs (S3 Object Lock)
+- Centralized logging
+
+**Data Access Governance**
+
+- Cognito RBAC
+- OPA authorization for PHI access
+
+Compliance is treated as a system property, not a documentation exercise.
+
+## 📊 Observability Strategy
+
+The platform provides full visibility across metrics, logs, and traces.
+
+### Metrics
+
+- API latency & error rates
+- EKS pod and node health
+- RDS performance
+- Authentication failures
+
+### Logs
+
+- Application logs
+- EKS audit logs
+- API Gateway access logs
+- CloudTrail events
+
+### Traces
+
+- End-to-end request tracing via AWS X-Ray
+
+### Alerting
+
+- Security anomalies
+- Unauthorized access attempts
+- Infrastructure degradation
+- Backup failures
+
+## 💾 Backup & Disaster Recovery
+
+- Automated backups using AWS Backup
+- Cross-region replication
+- Regular restore testing
+
+Defined recovery objectives:
+
+- RTO: < 1 hour
+- RPO: < 15 minutes
+
+Disaster recovery is tested, not assumed.
+
+## 🚀 CI/CD Pipeline Overview
+
+### Security-First Pipeline Stages
+
+- Terraform format & validation
+- Trivy IaC scanning (fail on HIGH)
+- Container image scanning
+- Policy-as-code validation
+- Manual approval for production
+- GitOps-based deployment to EKS
+
+A deployment that fails security checks is considered a successful pipeline outcome.
+
+## 📂 Repository Structure
+
+```
+.
+├── architecture/        # Architecture diagrams & threat models
+├── terraform/           # Modular Terraform infrastructure
+├── k8s/                 # Kubernetes manifests & policies
+├── ci-cd/               # GitHub Actions pipelines
+├── security/            # HIPAA mappings & audit evidence
+├── docs/                # DR, observability & ops docs
+└── README.md
+```
+
+## 🛡️ Security Best Practices & Secret Management
+
+This project follows security best practices for handling sensitive information:
+
+### No Hardcoded Secrets
+- All sensitive values (passwords, API keys, etc.) are handled as variables
+- Variables are marked as `sensitive = true` where appropriate
+- Secrets are stored in AWS Secrets Manager or Parameter Store when deployed
+
+### Recommended Secret Configuration
+Create a separate `terraform.tfvars` file (not committed to version control) with sensitive values:
+
+```hcl
+# terraform/terraform.tfvars (do not commit to git)
+db_password = "your-secure-password-here"
+security_account_email = "security@your-organization.com"
+shared_services_account_email = "shared@your-organization.com"
+prod_account_email = "prod@your-organization.com"
+```
+
+### .gitignore Configuration
+The project includes a comprehensive `.gitignore` file that prevents:
+- Terraform state files
+- Variable files containing secrets
+- Local configuration files
+- Certificate and key files
+- Log files
+
+### Secure Deployment Process
+1. Configure AWS credentials using AWS CLI or IAM roles
+2. Create `terraform.tfvars` file with your sensitive values
+3. Run `terraform plan` and `terraform apply` from a secure environment
+4. Store Terraform state in a secure, encrypted remote backend (S3 with KMS encryption)
+
+## 🚀 Getting Started
+
+### Prerequisites
+- AWS account with appropriate permissions
+- Terraform v1.0+
+- AWS CLI configured
+
+### Initial Setup
+1. Clone the repository
+2. Navigate to the `terraform/` directory
+3. Create a `terraform.tfvars` file with your sensitive values (see above)
+4. Run `terraform init` to initialize providers
+5. Run `terraform plan` to review the planned infrastructure
+6. Run `terraform apply` to deploy the infrastructure
