@@ -1,0 +1,186 @@
+# Prometheus configuration for HIPAA-compliant health platform
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+      - "hipaa-rules.yml"
+
+    scrape_configs:
+      # Kubelet metrics
+      - job_name: 'kubelet'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__host__]
+            target_label: __address__
+            replacement: '${1}:10250'
+
+      # Kube state metrics
+      - job_name: 'kube-state-metrics'
+        static_configs:
+          - targets: ['kube-state-metrics:8080']
+
+      # EKS control plane metrics (via CloudWatch)
+      - job_name: 'eks-control-plane'
+        metrics_path: /metrics
+        static_configs:
+          - targets: ['cloudwatch-exporter:9106']
+
+      # Application metrics
+      - job_name: 'health-applications'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: kubernetes_pod_name
+
+---
+# HIPAA-specific alerting rules
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-hipaa-rules
+  namespace: monitoring
+data:
+  hipaa-rules.yml: |
+    groups:
+      - name: hipaa-security.rules
+        rules:
+          # PHI Access Monitoring
+          - alert: UnauthorizedPHIAccess
+            expr: increase(phip_access_attempts_total{authorized="false"}[5m]) > 0
+            for: 1m
+            labels:
+              severity: critical
+              compliance: hipaa
+            annotations:
+              summary: "Unauthorized access to PHI detected"
+              description: "Unauthorized access to protected health information detected from {{ $labels.instance }}"
+
+          # Authentication Monitoring
+          - alert: HighAuthFailureRate
+            expr: (increase(auth_failure_total[5m]) / increase(auth_total[5m])) > 0.1
+            for: 2m
+            labels:
+              severity: warning
+              compliance: hipaa
+            annotations:
+              summary: "High authentication failure rate"
+              description: "More than 10% of authentication attempts are failing over the last 5 minutes"
+
+          # PHI Data Movement
+          - alert: BulkPHIAccess
+            expr: increase(phip_data_accessed_bytes[10m]) > 104857600  # 100MB threshold
+            for: 1m
+            labels:
+              severity: warning
+              compliance: hipaa
+            annotations:
+              summary: "Large amount of PHI accessed"
+              description: "More than 100MB of PHI data accessed within 10 minutes from {{ $labels.instance }}"
+
+          # System Availability
+          - alert: SystemAvailabilityLow
+            expr: avg(kube_pod_status_ready{namespace="health-app"}) < 0.9
+            for: 5m
+            labels:
+              severity: critical
+              compliance: hipaa
+            annotations:
+              summary: "System availability below threshold"
+              description: "Less than 90% of health application pods are ready"
+
+---
+# Grafana dashboard configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+data:
+  hipaa-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "HIPAA Compliance Dashboard",
+        "tags": ["hipaa", "compliance", "security"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "PHI Access Patterns",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(phip_access_attempts_total[5m])",
+                "legendFormat": "{{ authorized }}"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Authentication Success Rate",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "(sum(rate(auth_success_total[5m])) / sum(rate(auth_total[5m]))) * 100",
+                "legendFormat": "Success Rate"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "System Availability",
+            "type": "gauge",
+            "targets": [
+              {
+                "expr": "avg(kube_pod_status_ready{namespace=\"health-app\"}) * 100",
+                "legendFormat": "Availability %"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Security Events",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "security_event_count",
+                "instant": true
+              }
+            ]
+          }
+        ]
+      }
+    }

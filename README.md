@@ -159,6 +159,15 @@ Disaster recovery is tested, not assumed.
 
 A deployment that fails security checks is considered a successful pipeline outcome.
 
+### Pipeline Security Gates
+
+The CI/CD pipeline implements multiple security gates to prevent misconfigurations:
+
+- **terraform-validate**: Validates Terraform configuration syntax and structure
+- **trivy-iac**: Scans infrastructure code for security vulnerabilities
+- **opa-policy**: Enforces policy-as-code compliance using Open Policy Agent
+- **signed-artifacts**: Verifies cryptographic signatures on deployment artifacts
+
 ## 📂 Repository Structure
 
 ```
@@ -169,6 +178,13 @@ A deployment that fails security checks is considered a successful pipeline outc
 ├── ci-cd/               # GitHub Actions pipelines
 ├── security/            # HIPAA mappings & audit evidence
 ├── docs/                # DR, observability & ops docs
+│   ├── observability/   # Observability and monitoring documentation
+│   │   ├── index.md     # Overview of observability strategy
+│   │   ├── security-alerts.md  # Security alerting configuration
+│   │   └── secrets-management.md  # Secrets management guidelines
+│   ├── deployment-guide.md
+│   ├── security.md
+│   └── architecture.md
 └── README.md
 ```
 
