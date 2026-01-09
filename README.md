@@ -1,5 +1,7 @@
 # 🏥 HIPAA-Ready Health Data Platform on AWS
 
+![HIPAA Health Data Platform Architecture](https://github.com/leketech/hipaa-health-data-platform/blob/96044c9da58e339fe693d243a089bbb17356338f/ChatGPT%20Image%20Jan%208%2C%202026%2C%2002_48_15%20PM.png)
+
 A production-grade, compliance-first healthcare data platform designed with security, observability, and operational maturity as non-negotiable requirements.
 
 ## 📌 Project Overview
@@ -157,6 +159,15 @@ Disaster recovery is tested, not assumed.
 
 A deployment that fails security checks is considered a successful pipeline outcome.
 
+### Pipeline Security Gates
+
+The CI/CD pipeline implements multiple security gates to prevent misconfigurations:
+
+- **terraform-validate**: Validates Terraform configuration syntax and structure
+- **trivy-iac**: Scans infrastructure code for security vulnerabilities
+- **opa-policy**: Enforces policy-as-code compliance using Open Policy Agent
+- **signed-artifacts**: Verifies cryptographic signatures on deployment artifacts
+
 ## 📂 Repository Structure
 
 ```
@@ -167,6 +178,13 @@ A deployment that fails security checks is considered a successful pipeline outc
 ├── ci-cd/               # GitHub Actions pipelines
 ├── security/            # HIPAA mappings & audit evidence
 ├── docs/                # DR, observability & ops docs
+│   ├── observability/   # Observability and monitoring documentation
+│   │   ├── index.md     # Overview of observability strategy
+│   │   ├── security-alerts.md  # Security alerting configuration
+│   │   └── secrets-management.md  # Secrets management guidelines
+│   ├── deployment-guide.md
+│   ├── security.md
+│   └── architecture.md
 └── README.md
 ```
 
