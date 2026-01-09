@@ -115,9 +115,17 @@ variable "s3_phidata_bucket_name" {
 }
 
 variable "enable_cross_region_replication" {
-  description = "Enable cross-region replication for disaster recovery"
+  description = "Enable cross-region replication for disaster recovery"    
   type        = bool
-  default     = false  # Set to false to avoid secondary provider issues in basic setup
+  default     = false  # Set to false to avoid secondary provider issues in
+                       # basic setup
+}
+
+# Database Password
+variable "db_password" {
+  description = "Password for the RDS database"
+  type        = string
+  sensitive   = true
 }
 
 # Cognito Configuration
@@ -131,6 +139,12 @@ variable "cognito_app_client_name" {
   description = "Name for the Cognito app client"
   type        = string
   default     = "hipaa-health-app-client"
+}
+
+variable "cognito_external_id" {
+  description = "External ID for Cognito identity providers"
+  type        = string
+  default     = "hipaa-health-external-id"
 }
 
 # Tags for resources

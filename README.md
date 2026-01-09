@@ -146,6 +146,18 @@ Defined recovery objectives:
 
 Disaster recovery is tested, not assumed.
 
+### Backup Strategy
+- RDS automated backups with 35-day retention
+- S3 versioning for data protection
+- EBS volume backups with lifecycle policies
+- Automated restore testing (monthly)
+
+### Disaster Recovery Components
+- RDS read replicas in secondary region
+- S3 cross-region replication
+- Automated failover procedures
+- DR testing playbook with monthly drills
+
 ## 🚀 CI/CD Pipeline Overview
 
 ### Security-First Pipeline Stages
@@ -174,6 +186,19 @@ The CI/CD pipeline implements multiple security gates to prevent misconfiguratio
 .
 ├── architecture/        # Architecture diagrams & threat models
 ├── terraform/           # Modular Terraform infrastructure
+│   ├── backup/         # Backup and disaster recovery configuration
+│   ├── account-setup/  # AWS Organization and account setup
+│   ├── kms/            # KMS key management
+│   ├── networking/     # VPC and networking configuration
+│   ├── identity/       # Cognito and identity management
+│   ├── s3/             # S3 bucket configuration
+│   ├── rds/            # RDS database configuration
+│   ├── eks/            # EKS cluster configuration
+│   ├── logging/        # Logging and monitoring configuration
+│   ├── security/       # Security controls configuration
+│   ├── variables.tf    # Global variables
+│   ├── main.tf         # Main orchestration
+│   └── outputs.tf      # Infrastructure outputs
 ├── k8s/                 # Kubernetes manifests & policies
 ├── ci-cd/               # GitHub Actions pipelines
 ├── security/            # HIPAA mappings & audit evidence
@@ -182,9 +207,16 @@ The CI/CD pipeline implements multiple security gates to prevent misconfiguratio
 │   │   ├── index.md     # Overview of observability strategy
 │   │   ├── security-alerts.md  # Security alerting configuration
 │   │   └── secrets-management.md  # Secrets management guidelines
+│   ├── dr/             # Disaster recovery documentation
+│   │   ├── strategy.md # DR strategy and procedures
+│   │   ├── dr-testing-playbook.md  # DR testing procedures
+│   │   └── backup-restore-test.sh  # Automated backup/restore testing
+│   ├── compliance/     # Compliance evidence documentation
+│   │   └── evidence.md # Compliance evidence and audit artifacts
 │   ├── deployment-guide.md
 │   ├── security.md
 │   └── architecture.md
+├── policy/              # OPA policies for infrastructure validation
 └── README.md
 ```
 
