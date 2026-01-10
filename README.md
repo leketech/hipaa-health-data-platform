@@ -185,6 +185,8 @@ The CI/CD pipeline implements multiple security gates to prevent misconfiguratio
 ```
 .
 ├── architecture/        # Architecture diagrams & threat models
+│   ├── architecture-diagram.md  # Visual architecture representations
+│   └── threat-model.md  # Security threat modeling documentation
 ├── terraform/           # Modular Terraform infrastructure
 │   ├── backup/         # Backup and disaster recovery configuration
 │   ├── account-setup/  # AWS Organization and account setup
@@ -200,8 +202,12 @@ The CI/CD pipeline implements multiple security gates to prevent misconfiguratio
 │   ├── main.tf         # Main orchestration
 │   └── outputs.tf      # Infrastructure outputs
 ├── k8s/                 # Kubernetes manifests & policies
-├── ci-cd/               # GitHub Actions pipelines
+├── ci-cd/               # CI/CD pipeline documentation
+│   └── README.md        # Documentation for GitHub Actions workflows
 ├── security/            # HIPAA mappings & audit evidence
+│   ├── README.md        # Security documentation overview
+│   ├── hipaa-mappings.md # Mapping of controls to HIPAA requirements
+│   └── audit-evidence.md # Evidence of compliance and security measures
 ├── docs/                # DR, observability & ops docs
 │   ├── observability/   # Observability and monitoring documentation
 │   │   ├── index.md     # Overview of observability strategy
